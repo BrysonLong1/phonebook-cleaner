@@ -30,7 +30,7 @@ if uploaded_file:
     df[phone_col] = df[phone_col].apply(lambda x: x[1:] if len(x) == 11 and x.startswith('1') else x)
 
     # Extract area code
-    df['Area Code'] = df[phone_col].str[:3]
+    df['Area Code'] = df[phone_col].str[:4]
 
     # Group by area code
     area_code_group = df.groupby('Area Code').size().reset_index(name='Count')
