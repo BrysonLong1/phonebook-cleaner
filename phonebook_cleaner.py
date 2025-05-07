@@ -6,7 +6,7 @@ st.title("📇 Phonebook Cleaner")
 uploaded_file = st.file_uploader("Upload your phonebook (.csv or .xlsx)", type=["csv", "xlsx"])
 
 if uploaded_file:
-    # Load the file
+    # Load file
     if uploaded_file.name.endswith('.csv'):
         df = pd.read_csv(uploaded_file)
     else:
@@ -15,35 +15,33 @@ if uploaded_file:
     st.subheader('Raw Data')
     st.write(df.head())
 
-    # Clean column names
+    # Clean column headers
     df.columns = [col.strip() for col in df.columns]
 
-    # Clean name and phone columns
-    if 'Name' in df.columns and 'Phone' in df.columns:
-        df['Name'] = df['Name'].astype(str).str.strip()
-        df['Phone'] = df['Phone'].astype(str).str.replace(r'\D', '', regex=True)
+    # Let user select columns
+    name_col = st.selectbox("Select the column for names:", df.columns)
+    phone_col = st.selectbox("Select the column for phone numbers:", df.columns)
 
-        # Extract area code
-        df['Area Code'] = df['Phone'].str[:3]
+    # Clean data
+    df[name_col] = df[name_col].astype(str).str.strip()
+    df[phone_col] = df[phone_col].astype(str).str.replace(r'\D', '', regex=True)
 
-        # Group by area code
-        area_code_group = df.groupby('Area Code').size().reset_index(name='Count')
+    # Extract area codes
+    df['Area Code'] = df[phone_col].str[:3]
 
-        st.subheader("Cleaned Data")
-        st.write(df.head())
+    # Group by area code
+    area_code_group = df.groupby('Area Code').size().reset_index(name='Count')
 
-        # Show area code breakdown
-        st.subheader("📊 Area Code Breakdown")
-        st.write(area_code_group)
+    st.subheader("Cleaned Data")
+    st.write(df[[name_col, phone_col, 'Area Code']].head())
 
-        # Optional: Bar chart of area codes
-        st.bar_chart(area_code_group.set_index('Area Code'))
+    st.subheader("📊 Area Code Breakdown")
+    st.write(area_code_group)
+    st.bar_chart(area_code_group.set_index('Area Code'))
 
-        # Allow download
-        csv = df.to_csv(index=False)
-        st.download_button("📥 Download Cleaned CSV", csv, "cleaned_phonebook.csv", "text/csv")
-    else:
-        st.error("The file must contain 'Name' and 'Phone' columns.")
+    # Download cleaned file
+    csv = df[[name_col, phone_col, 'Area Code']].to_csv(index=False)
+    st.download_button("📥 Download Cleaned CSV", csv, "cleaned_phonebook.csv", "text/csv")
 
    
 
