@@ -27,7 +27,7 @@ if uploaded_file:
     df[phone_col] = df[phone_col].astype(str).str.replace(r'\D', '', regex=True)
 
     # Extract area codes
-    df['Area Code'] = df[phone_col].str[:3]
+    df['Area Code'] = df[phone_col].str[:4]
 
     # Group by area code
     area_code_group = df.groupby('Area Code').size().reset_index(name='Count')
